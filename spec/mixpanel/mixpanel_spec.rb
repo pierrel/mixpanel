@@ -29,7 +29,7 @@ describe Mixpanel do
       it "should call request method with token and time value" do
         params = {:event => "Sign up", :properties => {:token => MIX_PANEL_TOKEN, :time => Time.now.utc.to_i, :ip => "127.0.0.1"}}
 
-        @mixpanel.should_receive(:request).with(params).and_return("1")
+        @mixpanel.should_receive(:request).with(params, false).and_return("1")
         @mixpanel.track_event("Sign up").should == true
       end
     end
@@ -60,12 +60,12 @@ describe Mixpanel do
         @mixpanel.append_event("Sign up", {:referer => 'http://example.com'})
         @mixpanel.queue.size.should == 1
       end
-      
+
       it "should provide direct access to the JS api" do
         @mixpanel.append_api('track', "Sign up", {:referer => 'http://example.com'})
         mixpanel_queue_should_include(@mixpanel, "track", "Sign up", {:referer => 'http://example.com'})
       end
-      
+
       it "should allow identify to be called through the JS api" do
         @mixpanel.append_api('identify', "some@one.com")
         mixpanel_queue_should_include(@mixpanel, "identify", "some@one.com")
@@ -75,7 +75,7 @@ describe Mixpanel do
         @mixpanel.append_api('identify', "some@one.com")
         mixpanel_queue_should_include(@mixpanel, "identify", "some@one.com")
       end
-      
+
       it "should allow the tracking of super properties in JS" do
         @mixpanel.append_api('register', {:user_id => 12345, :email => "some@one.com"})
         mixpanel_queue_should_include(@mixpanel, 'register', {:user_id => 12345, :email => "some@one.com"})

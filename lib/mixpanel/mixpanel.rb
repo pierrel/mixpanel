@@ -12,14 +12,14 @@ class Mixpanel
   def append_event(event, properties = {})
     append_api('track', event, properties)
   end
-  
+
   def append_api(type, *args)
     queue << [type, args.map {|arg| arg.to_json}]
   end
-  
-  def track_event(event, properties = {})
+
+  def track_event(event, properties = {}, test = false)
     params = build_event(event, properties.merge(:token => @token, :time => Time.now.utc.to_i, :ip => ip))
-    parse_response request(params)
+    parse_response request(params, test)
   end
 
   def ip
@@ -40,9 +40,9 @@ class Mixpanel
     response == "1" ? true : false
   end
 
-  def request(params)
+  def request(params, test = false)
     data = Base64.encode64(JSON.generate(params)).gsub(/\n/,'')
-    url = "http://api.mixpanel.com/track/?data=#{data}"
+    url = "http://api.mixpanel.com/track/?data=#{data}#{"&test=1" if test}"
 
     open(url).read
   end
